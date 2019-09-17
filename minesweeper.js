@@ -1,5 +1,22 @@
 document.addEventListener('DOMContentLoaded', startGame)
 
+var clickSound = document.getElementById("click");
+var winSound = document.getElementById("applause");
+var loseSound = document.getElementById("explosion");
+var flagSound = document.getElementById("flag");
+
+document.addEventListener("click", function (event) {
+  if (event.target.classList.contains('mine')) {
+    playSound(loseSound);
+  } else {
+    playSound(clickSound);
+  }
+});
+
+document.addEventListener("contextmenu", function (event) {
+  playSound(flagSound);
+})
+
 var board = undefined;
 
 // Don't remove this function call: it makes the game work!
@@ -19,6 +36,7 @@ function startGame() {
   }
   while (board === undefined);
 
+
   for (let i = 0; i < board.cells.length; i++) {
     board.cells[i].surroundingMines = countSurroundingMines(board.cells[i]);
   }
@@ -27,8 +45,8 @@ function startGame() {
   document.addEventListener("contextmenu", checkForWin);
 
   lib.initBoard()
+  document.getElementById('btn').addEventListener("click", restartGame)
 }
-
 
 function createBoard(size) {
   board = {
@@ -40,15 +58,17 @@ function createBoard(size) {
       board.cells.push({
         row: x,
         col: y,
-        isMine: false,
+        isMine: Boolean(Math.round(Math.random())),
         isMarked: false,
         hidden: true
       });
     }
-
-    // Boolean(Math.round(Math.random()))
   }
+  // ,
 };
+
+
+
 
 // Define this function to look for a win condition:
 //
@@ -62,15 +82,15 @@ function checkForWin() {
     } else if (!board.cells[i].isMine && board.cells[i].hidden) {
       return;
     }
-
   }
 
   // You can use this function call to declare a winner (once you've
   // detected that they've won, that is!)
   //   lib.displayMessage('You win!')
   lib.displayMessage('You win!');
-  document.getElementById('btn').style.display = "block";
-  document.getElementById('btn').addEventListener("click", restartGame)
+  playSound(winSound);
+
+
 }
 
 // Define this function to count the number of mines around the cell
@@ -96,4 +116,9 @@ function restartGame() {
   document.querySelector('.board').innerHTML = "";
   board = undefined;
   startGame();
+}
+
+function playSound(sound) {
+  sound.play();
+  return;
 }
