@@ -40,7 +40,8 @@ function createBoard(size) {
       board.cells.push({
         row: x,
         col: y,
-        isMine: true,
+        isMine: Boolean(Math.round(Math.random())),
+        isMarked: false,
         hidden: true
       });
     }
