@@ -5,19 +5,8 @@ var winSound = document.getElementById("applause");
 var loseSound = document.getElementById("explosion");
 var flagSound = document.getElementById("flag");
 
-document.addEventListener("click", function (event) {
-  if (event.target.classList.contains('mine')) {
-    playSound(loseSound);
-  } else {
-    playSound(clickSound);
-  }
-});
-
-document.addEventListener("contextmenu", function (event) {
-  playSound(flagSound);
-})
-
 var board = undefined;
+var mines = 1;
 
 // Don't remove this function call: it makes the game work!
 function startGame() {
@@ -41,8 +30,19 @@ function startGame() {
     board.cells[i].surroundingMines = countSurroundingMines(board.cells[i]);
   }
 
-  document.addEventListener("click", checkForWin);
-  document.addEventListener("contextmenu", checkForWin);
+  document.addEventListener("click", function (event) {
+    checkForWin();
+    if (event.target.classList.contains('mine')) {
+      playSound(loseSound);
+    } else {
+      playSound(clickSound);
+    }
+  });
+  
+  document.addEventListener("contextmenu", function (event) {
+    checkForWin();
+    playSound(flagSound);
+  })
 
   lib.initBoard()
   document.getElementById('btn').addEventListener("click", restartGame)
@@ -58,16 +58,27 @@ function createBoard(size) {
       board.cells.push({
         row: x,
         col: y,
-        isMine: Boolean(Math.round(Math.random())),
+        isMine: Boolean(generateMines(size)),
         isMarked: false,
         hidden: true
       });
     }
   }
-  // ,
 };
 
 
+// randomly generate mines with mine cap
+function generateMines(size) {
+  if (mines < (size * size) / 3) {
+    var randomNumber = Math.round(Math.random());
+    if (randomNumber === 1) {
+      mines++
+    }
+    return randomNumber;
+  } else {
+    return false;
+  }
+}
 
 
 // Define this function to look for a win condition:
@@ -89,8 +100,6 @@ function checkForWin() {
   //   lib.displayMessage('You win!')
   lib.displayMessage('You win!');
   playSound(winSound);
-
-
 }
 
 // Define this function to count the number of mines around the cell
@@ -115,6 +124,7 @@ function countSurroundingMines(cell) {
 function restartGame() {
   document.querySelector('.board').innerHTML = "";
   board = undefined;
+  mines = 1;
   startGame();
 }
 
